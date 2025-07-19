@@ -1,0 +1,46 @@
+      <View className="pt-10 pl-10 h-[15%] ">
+        <Text className="text-xl">𝑯𝒊 ,</Text>
+        <Text className="font-extrabold text-3xl italic pt-2">Utsab</Text>
+      </View>
+
+      <View className="pt-5  flex justify-center items-center   h-[20%] ">
+        <Image
+          source={require("../../assets/img1.png")}
+          style={{
+            width: width * 0.5, // 80% of screen width
+            // height: height * 0.3, // 30% of screen height
+            resizeMode: "contain",
+          }}
+        />
+      </View>
+
+      <View className="w-full h-[48%] flex justify-center items-center ">
+        <View className="mx-auto bg-[#6c757d] w-[85%] px-5 py-10 rounded-3xl">
+          <View>
+            <Text className="text-lg font-bold mb-2">Enter Item Name : </Text>
+            <TextInput
+              className="w-full border border-gray-300 rounded-md px-4 py-3 text-base bg-slate-50 font-semibold"
+              placeholder="Enter Expense Name"
+              value="Utsab"
+              // onChangeText={setName}
+            />
+          </View>
+          <View className="mt-10">
+            <Text className="text-lg font-bold mb-2">Enter Amount Spent:</Text>
+            <TextInput
+              className="w-full border border-gray-300 rounded-md px-4 py-3 text-base bg-slate-50 font-semibold"
+              placeholder="Enter Expense Amount"
+              value="Utsab"
+              keyboardType="numeric"
+              // onChangeText={setName}
+            />
+          </View>
+
+          <Pressable
+            className="bg-[#a7c957] mt-10 py-4 rounded-2xl"
+            style={{ elevation: 5 }}
+          >
+            <Text className="text-center font-bold text-lg">Add Expense</Text>
+          </Pressable>
+        </View>
+      </View>

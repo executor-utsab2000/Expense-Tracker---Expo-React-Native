@@ -1,0 +1,17 @@
+  store data :  
+   await AsyncStorage.setItem("todoList", JSON.stringify(todoList));
+   
+get data:
+   await AsyncStorage.setItem("todoList"); 
+
+
+after update delete and add data in state update it by setItem
+
+
+As we have this part in this here it will trigger on each state change and save the todo
+useEffect(() => {
+  const saveTodos = async () => {
+    await AsyncStorage.setItem('todos', JSON.stringify(todos));
+  };
+  saveTodos();
+}, [todos]); 

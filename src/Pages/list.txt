@@ -1,0 +1,40 @@
+      {showUserNameEntryBox && (
+        <ModelComponent>
+          <TextInput
+            className="w-full border border-gray-300 rounded-md px-4 py-3 text-base bg-slate-50 font-semibold"
+            placeholder="Enter Your Name"
+            value={inputUserName}
+            onChangeText={setInputUserName}
+          />
+          <View className="flex flex-row justify-around mt-4 flex-wrap">
+            <Pressable
+              style={appStyle.modelButton}
+              onPress={setUserNameFunction}
+            >
+              <Text style={appStyle.buttonTxt}>Save</Text>
+            </Pressable>
+          </View>
+        </ModelComponent>
+      )}
+
+      {showUserWelcomeBox && (
+        <ModelComponent>
+          <Text className="text-xl">𝑯𝒊 ,</Text>
+          <Text className="font-extrabold text-3xl italic pt-2">
+            {storeUserName}
+          </Text>
+          <Text className="font-extrabold text-xl italic pt-2">
+            𝑾𝒆𝒍𝒄𝒐𝒎𝒆 𝒃𝒂𝒄𝒌 , 𝑻𝒓𝒂𝒄𝒌 𝒀𝒐𝒖𝒓 𝑬𝒙𝒑𝒆𝒏𝒔𝒆
+          </Text>
+          <View className="flex flex-row justify-around mt-4 flex-wrap">
+            <Pressable
+              style={appStyle.modelButton}
+              onPress={() => {
+                setShowUserWelcomeBox(false);
+              }}
+            >
+              <Text style={appStyle.buttonTxt}>Close</Text>
+            </Pressable>
+          </View>
+        </ModelComponent>
+      )}

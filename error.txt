@@ -1,0 +1,114 @@
+  useEffect(() => {
+    const loadTodos = async () => {
+      try {
+        const storedTodos = await AsyncStorage.getItem("todoList"); //get the items
+        const storedName = await AsyncStorage.getItem("userName"); //get the items
+        // if (storedTodos) {
+        const parsedTodo = JSON.parse(storedTodos);
+
+        setTodoList(parsedTodo);
+        // console.log(storedTodos);
+        // console.log(`User name : ${storedName}`);
+        const total = parsedTodo.reduce(
+          (result, currVal) => result + parseFloat(currVal.amount),
+          0
+        );
+        // console.log(total);
+
+        setSum(total);
+        // }
+      } catch (e) {
+        console.error("Failed to load todos:", e);
+      }
+    };
+    loadTodos();
+
+    // ===============================================================================
+  }, []);
+
+  // save data to storage
+  // useEffect(() => {
+  //   async function saveData() {
+  //     try {
+  //       await AsyncStorage.setItem("todoList", JSON.stringify(todoList));
+  //     } catch (e) {
+  //       console.error("Failed to save todos:", e);
+  //     }
+  //   }
+  //   saveData();
+  // }, [todoList]);
+
+  const deleteItem = (index) => {
+    const updatedTodo = todoList.filter((_, i) => i !== index);
+    setTodoList(updatedTodo);
+
+    const newSum = updatedTodo.reduce(
+      (result, currVal) => result + parseFloat(currVal.amount),
+      0
+    );
+    setSum(newSum);
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    useEffect(() => {
+    if (!isDataLoaded) return; // 🚫 Don't save if loading not done yet
+
+    async function saveData() {
+      try {
+        await AsyncStorage.setItem("todoList", JSON.stringify(todoList));
+        setUserExpenseName("");
+        setUserExpenseAmount(0);
+        // console.log("Saved todos:", todoList);
+      } catch (e) {
+        console.error("Failed to save todos:", e);
+      }
+    }
+
+    saveData();
+  }, [todoList, isDataLoaded]);
+
+  // ===================================================================================================================
+  // ===================================================================================================================
+  // addData function
+  const addTodo = () => {
+    const now = new Date();
+
+    const currentDate = now.toLocaleDateString(); // e.g., "6/26/2025"
+    const currentTime = now.toLocaleTimeString(); // e.g., "10:45:30 AM"
+
+    const newTodo = {
+      title: userExpenseName.trim(),
+      amount: userExpenseAmount.trim(),
+      currentDate: currentDate,
+      currentTime: currentTime,
+    };
+
+    setTodoList((prev) => [newTodo, ...prev]); //cloning the existing todo and adding a new todo
+    Toast.show({
+      type: "success",
+      text1: "Data Saved",
+      text2: "Check List  Page",
+    });
+    // console.log(todoList);
+  };
+
+
+
+
+
+
+
+
+
