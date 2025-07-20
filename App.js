@@ -22,7 +22,7 @@ const Stack = createNativeStackNavigator();
 const App = () => {
   const [initialRoute, setInitialRoute] = useState(null);
 
-  useEffect(() => {
+  useEffect(() => { 
     async function conditionallySetRoute() {
       // console.log(await AsyncStorage.getAllKeys());
       // ------------------------------------------------------------------------------------------------------------
@@ -59,9 +59,7 @@ const App = () => {
 
       if (date == 1) {
         const monthNumber = today.getMonth();
-        const monthDetails = monthAllRecords.find(
-          (elm) => monthNumber - 1 == elm.monthCount
-        );
+        const monthDetails = monthAllRecords.find((elm) => monthNumber - 1 == elm.monthCount);
         const getYear = today.getFullYear();
         // console.log(getYear);
 
@@ -113,7 +111,7 @@ const App = () => {
       <View className="bg-[#d0d4d9] flex-1">
         <NavigationContainer>
           <Stack.Navigator initialRouteName={initialRoute}>
-          {/* <Stack.Navigator initialRouteName="list"> */}
+          {/* <Stack.Navigator initialRouteName="home"> */}
             <Stack.Screen
               name="nameInsert"
               component={NameInsert}
