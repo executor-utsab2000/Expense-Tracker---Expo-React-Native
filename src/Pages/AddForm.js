@@ -11,23 +11,168 @@ import ProjectLayout from "../Components/Layout/ProjectLayout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get("window");
 // import { appStyle } from "../CSS/appStyle";
-import Toast from "react-native-toast-message";
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import Modal from "react-native-modal";
 import { categoryArray } from "../JS/categoryArray";
+import { getRemainingAmount } from "../JS/getDatas";
 
 const AddForm = () => {
   const [userExpenseName, setUserExpenseName] = useState("");
   const [userExpenseAmount, setUserExpenseAmount] = useState(0);
   const [category, setCategory] = useState("");
+  const [budget, setBudget] = useState(0);
 
-  const [todoList, setTodoList] = useState([]);
   const [storeUserName, setStoreUserName] = useState("");
   const [showBudgetModal, setShowBudgetModal] = useState(false);
-  const [budget, setBudget] = useState(0);
   const [remainingAmount, setRemainingAmount] = useState(0);
-  const [showWarningBudgetModal, setShowWarningBudgetModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
+  // ===================================================================================================================
+  // ===================================================================================================================
+
+  const toastConfig = {
+    error: (props) => (
+      <ErrorToast
+        {...props}
+        text1NumberOfLines={2}
+        text2NumberOfLines={10}
+        text1Style={{ fontSize: 15 }}
+        text2Style={{
+          fontSize: 12,
+          flexWrap: 'wrap',
+          color: '#333',
+          marginTop: 5,
+        }}
+        style={{
+          minHeight: 100, // ✅ Increase height here
+          paddingVertical: 20,
+          paddingHorizontal: 15,
+          borderLeftColor: 'red',
+          borderLeftWidth: 5,
+        }}
+      />
+    ),
+  };
+
+  // ===================================================================================================================
+  // ===================================================================================================================
+  async function saveBudget() {
+
+    if (budget == 0 || budget.trim() == "") {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Budget ",
+        text2: `Budget should be greater than 0`,
+      });
+      return;
+    }
+    else {
+
+      // const storedBudget = await AsyncStorage.getItem("budget");
+      const savedTodos = await AsyncStorage.getItem("todoList");
+
+      let remaining;
+
+      if (savedTodos != null && budget != null) {
+        const parsedTodos = JSON.parse(savedTodos);
+        const total = parsedTodos.reduce((result, currVal) => result + Number(currVal.amount), 0);
+        remaining = Number(budget) - total;
+      }
+
+      if (Number(remaining) < 0) {
+        Toast.show({
+          type: "error",
+          text1: "Invalid Budget ",
+          text2: `Remaining cant be negative`,
+        });
+        return;
+      }
+      else {
+        await AsyncStorage.setItem("budget", budget);
+        Toast.show({
+          type: "success",
+          text1: "Budget Saved",
+          text2: `Your Monthly budget is set to ${budget}`,
+        });
+
+        const remainingAmount = await getRemainingAmount();
+        setRemainingAmount(remainingAmount);
+        setShowBudgetModal(false)
+      }
+    }
+
+  }
+
+  // ===================================================================================================================
+  // save data to storage
+  const addTodo = async () => {
+
+    if (Number(remainingAmount) < Number(userExpenseAmount)) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Budget ",
+        text2: `You do not have enough Budget to spend.. Increase your Monthly Budget first.`,
+      });
+      setShowBudgetModal(true)
+      return
+    }
+    else if (userExpenseName == '' || userExpenseAmount == '' || category == '') {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Data ",
+        text2: `Fill All Fields`,
+      });
+      return
+    }
+    else if (Number(userExpenseAmount) == 0) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Data ",
+        text2: `Amount  cannot be 0`,
+      });
+      return
+    }
+
+    else {
+      const now = new Date();
+      const currentDate = now.toLocaleDateString();
+      const currentTime = now.toLocaleTimeString();
+
+      const newTodo = {
+        title: userExpenseName.trim(),
+        amount: userExpenseAmount.trim(),
+        currentDate: currentDate,
+        currentTime: currentTime,
+      };
+
+      const savedTodos = await AsyncStorage.getItem("todoList");
+      let updatedList;
+
+      if (savedTodos != null) {
+        const parsedTodos = JSON.parse(savedTodos);
+        updatedList = [newTodo, ...parsedTodos];
+      }
+      else {
+        updatedList = [newTodo];
+      }
+      await AsyncStorage.setItem("todoList", JSON.stringify(updatedList))
+
+      Toast.show({
+        type: "success",
+        text1: "Data Saved",
+        text2: "Check List Page",
+      });
+
+      const remainingAmount = await getRemainingAmount();
+      setRemainingAmount(remainingAmount);
+
+      // Reset fields after saving
+      setUserExpenseName("");
+      setUserExpenseAmount(0);
+      setCategory("");
+    }
+    
+  }
   // ===================================================================================================================
   // ===================================================================================================================
 
@@ -36,8 +181,6 @@ const AddForm = () => {
     function onFirstDateShowModal() {
       const today = new Date();
       const date = today.getDate();
-      // console.log(date);
-      // const date = 10;
 
       if (date == 1) {
         setShowBudgetModal(true);
@@ -45,10 +188,9 @@ const AddForm = () => {
     }
     onFirstDateShowModal();
 
-    // ===================================================================================================================
+    // =======================================================================================================================
 
     async function loadData() {
-      //   console.log(await AsyncStorage.getAllKeys());
       try {
         const storedName = await AsyncStorage.getItem("userName");
         setStoreUserName(storedName);
@@ -56,7 +198,8 @@ const AddForm = () => {
         const storedBudget = await AsyncStorage.getItem("budget");
         if (storedBudget != null) {
           setBudget(storedBudget);
-        } else if (storedBudget == null) {
+        }
+        else if (storedBudget == null) {
           setBudget("0");
         }
 
@@ -64,23 +207,14 @@ const AddForm = () => {
           setShowBudgetModal(true);
         }
 
-        const savedTodos = await AsyncStorage.getItem("todoList");
-        if (savedTodos != null) {
-          const parsedTodos = JSON.parse(savedTodos);
-          setTodoList(parsedTodos);
-          const total = parsedTodos.reduce(
-            (result, currVal) => result + Number(currVal.amount),
-            0
-          );
-          const remaining = Number(storedBudget) - total;
-          setRemainingAmount(remaining);
-          if (remaining < 0) {
-            setShowWarningBudgetModal(true);
-          }
-        } else {
-          setRemainingAmount(storedBudget);
-        }
-      } catch (e) {
+        const remainingAmount = await getRemainingAmount();
+        setRemainingAmount(remainingAmount);
+
+
+
+      }
+
+      catch (e) {
         console.error("Failed to load todos:", e);
       }
     }
@@ -88,102 +222,9 @@ const AddForm = () => {
     loadData();
   }, []);
 
-  // ===================================================================================================================
-  // ===================================================================================================================
-
-  // save data to storage
-  const addTodo = async () => {
-    const now = new Date();
-    const currentDate = now.toLocaleDateString();
-    const currentTime = now.toLocaleTimeString();
-
-    const newTodo = {
-      title: userExpenseName.trim(),
-      amount: userExpenseAmount.trim(),
-      currentDate: currentDate,
-      currentTime: currentTime,
-    };
-
-    const updatedList = [newTodo, ...todoList];
-    setTodoList(updatedList);
-
-    try {
-      await AsyncStorage.setItem("todoList", JSON.stringify(updatedList));
-      setUserExpenseName("");
-      setUserExpenseAmount(0);
-
-      Toast.show({
-        type: "success",
-        text1: "Data Saved",
-        text2: "Check List Page",
-      });
-
-      const total = updatedList.reduce(
-        (result, currVal) => result + Number(currVal.amount),
-        0
-      );
-
-      const remaining = Number(budget) - total;
-      setRemainingAmount(remaining);
-
-      if (remaining < 0) {
-        setShowWarningBudgetModal(true);
-      }
-    } catch (error) {
-      console.error("Error saving todo:", error);
-    }
-  };
-
-  // ===================================================================================================================
-
-  async function saveBudget() {
-    if (budget == 0 || budget.trim() == "") {
-      Toast.show({
-        type: "error",
-        text1: "Invalid Budget ",
-        text2: `Budget should be greater than 0`,
-      });
-      // setShowBudgetModal(false)
-      return;
-    }
-
-    // console.log(budget);
-    await AsyncStorage.setItem("budget", budget);
-    Toast.show({
-      type: "success",
-      text1: "Budget Saved",
-      text2: `Your Monthly budget is set to ${budget}`,
-    });
-
-    // this part will be needed while edit budget
-    const savedTodos = await AsyncStorage.getItem("todoList");
-    if (savedTodos != null) {
-      const parsedTodos = JSON.parse(savedTodos);
-      setTodoList(parsedTodos);
-      const total = parsedTodos.reduce(
-        (result, currVal) => result + Number(currVal.amount),
-        0
-      );
-      setRemainingAmount(Number(budget) - total);
-    } else {
-      setRemainingAmount(budget);
-    }
-    setShowBudgetModal(false);
-  }
-
-  // ===================================================================================================================
-
-  async function editBudget() {
-    setShowBudgetModal(true);
-    // console.log(budget);
-
-    await AsyncStorage.setItem("budget", budget);
-    // on save update remainng balance to be done
-  }
 
   // ===================================================================================================================
   // ===================================================================================================================
-
   return (
     <>
       <ProjectLayout>
@@ -203,7 +244,7 @@ const AddForm = () => {
             </Text>
             <Pressable
               className="py-2 mt-4 border-2 border-slate-500 rounded-3xl"
-              onPress={editBudget}
+              onPress={() => { setShowBudgetModal(true) }}
             >
               <Text className="text-center">Edit Budget</Text>
             </Pressable>
@@ -277,6 +318,7 @@ const AddForm = () => {
       </ProjectLayout>
 
       <Toast
+        config={toastConfig}
         position="top" // or "top"
         topOffset={100} // keeps it above gesture bar
         visibilityTime={2000} //  1.5s then auto‑hide
@@ -305,24 +347,6 @@ const AddForm = () => {
         </View>
       </Modal>
 
-      <Modal isVisible={showWarningBudgetModal}>
-        <View className="p-5  w-[90%] bg-slate-50 mx-auto rounded-3xl">
-          <Text className="pt-3  font-bold text-3xl color-red-500 text-center">
-            Budget Alert ‼️‼️
-          </Text>
-          <Text className="mb-6 pt-3 pb-5 font-bold text-xl color-red-500 text-center">
-            You have exceeded your Monthly Budget.
-          </Text>
-          <Pressable
-            className="bg-red-600 py-3 rounded-3xl "
-            onPress={() => setShowWarningBudgetModal(false)}
-          >
-            <Text className="text-center color-amber-300 font-bold text-lg">
-              Close
-            </Text>
-          </Pressable>
-        </View>
-      </Modal>
 
       <Modal isVisible={showCategoryModal}>
         <View className="p-5  w-[90%] bg-slate-50 mx-auto rounded-3xl">
@@ -332,19 +356,19 @@ const AddForm = () => {
           <View>
             {categoryArray.map(
               ({ categoryLabel, categoryDescription }, index) => (
-                <>
-                  <Pressable
-                    className="py-3 border-b-2 border-blue-500 flex flex-row justify-center"
-                    key={index}
-                    onPress={() => {
-                      setCategory(categoryLabel);
-                      setShowCategoryModal(false);
-                    }}
-                  >
-                    <Text className="text-center font-bold">{categoryLabel} -</Text>
-                    <Text className="color-slate-500 px-2">{categoryDescription}</Text>
-                  </Pressable>
-                </>
+
+                <Pressable
+                  className="py-3 border-b-2 border-blue-500 flex flex-row justify-center"
+                  key={index}
+                  onPress={() => {
+                    setCategory(categoryLabel);
+                    setShowCategoryModal(false);
+                  }}
+                >
+                  <Text className="text-center font-bold">{categoryLabel} -</Text>
+                  <Text className="color-slate-500 px-2">{categoryDescription}</Text>
+                </Pressable>
+
               )
             )}
           </View>
