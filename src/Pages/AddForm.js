@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Text,
-  View,
-  TextInput,
-  Pressable,
-  Image,
-  Dimensions,
-} from "react-native";
+import { Text, View, TextInput, Pressable, Image, Dimensions } from "react-native";
 import ProjectLayout from "../Components/Layout/ProjectLayout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get("window");
@@ -141,6 +134,7 @@ const AddForm = () => {
       const newTodo = {
         title: userExpenseName.trim(),
         amount: userExpenseAmount.trim(),
+        category: category,
         currentDate: currentDate,
         currentTime: currentTime,
       };
@@ -171,7 +165,7 @@ const AddForm = () => {
       setUserExpenseAmount(0);
       setCategory("");
     }
-    
+
   }
   // ===================================================================================================================
   // ===================================================================================================================
@@ -231,69 +225,41 @@ const AddForm = () => {
         <View className="pt-10 h-[15%]  mx-auto w-[85%] flex flex-row justify-between pb-10">
           <View className="my-auto">
             <Text className="text-xl">𝑯𝒊 ,</Text>
-            <Text className="font-extrabold text-3xl italic pt-2">
-              {storeUserName}
-            </Text>
+            <Text className="font-extrabold text-3xl italic pt-2">{storeUserName}</Text>
           </View>
           <View className="my-auto">
-            <Text className="text-sm font-extrabold color-red-600">
-              Total Monthly Budget : {budget}
-            </Text>
-            <Text className="text-sm font-extrabold color-red-600">
-              Remaining Monthly Budget : {remainingAmount}
-            </Text>
-            <Pressable
-              className="py-2 mt-4 border-2 border-slate-500 rounded-3xl"
-              onPress={() => { setShowBudgetModal(true) }}
-            >
+            <Text className="text-sm font-extrabold color-red-600">Total Monthly Budget : {budget}</Text>
+            <Text className="text-sm font-extrabold color-red-600">Remaining Monthly Budget : {remainingAmount}</Text>
+            <Pressable className="py-2 mt-4 border-2 border-slate-500 rounded-3xl" onPress={() => { setShowBudgetModal(true) }}>
               <Text className="text-center">Edit Budget</Text>
             </Pressable>
           </View>
         </View>
 
         <View className="pt-5 flex justify-center items-center h-[30%] ">
-          <Image
-            source={require("../../assets/img1.png")}
+          <Image source={require("../../assets/img1.png")}
             style={{
               width: width * 0.5, // 80% of screen width
               resizeMode: "contain",
-            }}
-          />
+            }} />
         </View>
 
         <View className="w-full h-[50%] flex justify-center items-center ">
           <View className="mx-auto bg-[#6c757d] w-[85%] px-5 py-10 rounded-3xl">
             <View>
               <Text className="text-md font-bold mb-2">Enter Item Name : </Text>
-              <TextInput
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-base bg-slate-50 font-semibold"
-                placeholder="Enter Expense Name"
-                value={userExpenseName}
-                onChangeText={setUserExpenseName}
-              />
+              <TextInput className="w-full border border-gray-300 rounded-md px-4 py-2 text-base bg-slate-50 font-semibold" placeholder="Enter Expense Name" value={userExpenseName} onChangeText={setUserExpenseName} />
             </View>
 
             <View className="flex flex-row mt-10 justify-between">
               <View className="w-[48%]">
-                <Text className="text-md font-bold mb-2">
-                  Enter Amount Spent:
-                </Text>
-                <TextInput
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-base bg-slate-50 font-semibold"
-                  placeholder="Enter Expense Amount"
-                  value={userExpenseAmount}
-                  keyboardType="numeric"
-                  onChangeText={setUserExpenseAmount}
-                />
+                <Text className="text-md font-bold mb-2">Enter Amount Spent:</Text>
+                <TextInput className="w-full border border-gray-300 rounded-md px-4 py-2 text-base bg-slate-50 font-semibold" placeholder="Enter Expense Amount" value={userExpenseAmount} keyboardType="numeric" onChangeText={setUserExpenseAmount} />
               </View>
 
               <View className="w-[48%]">
                 <Text className="text-md font-bold mb-2">Enter Category:</Text>
-                <Pressable
-                  onPress={() => {
-                    setShowCategoryModal(true);
-                  }}
-                >
+                <Pressable onPress={() => { setShowCategoryModal(true) }}>
                   <TextInput
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-base bg-slate-50 font-semibold"
                     placeholder="Enter Category"
@@ -305,13 +271,8 @@ const AddForm = () => {
               </View>
             </View>
 
-            <Pressable
-              className="bg-[#a7c957] mt-10 py-4 rounded-2xl"
-              style={{ elevation: 5 }}
-            >
-              <Text className="text-center font-bold text-lg" onPress={addTodo}>
-                Add Expense
-              </Text>
+            <Pressable className="bg-[#a7c957] mt-10 py-4 rounded-2xl" style={{ elevation: 5 }}>
+              <Text className="text-center font-bold text-lg" onPress={addTodo}>Add Expense</Text>
             </Pressable>
           </View>
         </View>
@@ -326,9 +287,7 @@ const AddForm = () => {
 
       <Modal isVisible={showBudgetModal}>
         <View className="p-5  w-[90%] bg-slate-50 mx-auto rounded-3xl">
-          <Text className=" border-b-2 border-slate-500 mb-6 pt-3 pb-5 font-bold text-xl">
-            Set Your Monthly Budget
-          </Text>
+          <Text className=" border-b-2 border-slate-500 mb-6 pt-3 pb-5 font-bold text-xl">Set Your Monthly Budget</Text>
           <TextInput
             className="w-full border border-gray-300 rounded-md px-4 py-2 text-base bg-slate-50 font-semibold mb-3"
             placeholder="Enter Monthly Budget"
@@ -336,13 +295,8 @@ const AddForm = () => {
             keyboardType="numeric"
             onChangeText={setBudget}
           />
-          <Pressable
-            className="bg-red-600 py-3 rounded-3xl "
-            onPress={saveBudget}
-          >
-            <Text className="text-center color-amber-300 font-bold text-lg">
-              Set Budget
-            </Text>
+          <Pressable className="bg-red-600 py-3 rounded-3xl " onPress={saveBudget}>
+            <Text className="text-center color-amber-300 font-bold text-lg">Set Budget</Text>
           </Pressable>
         </View>
       </Modal>
@@ -350,9 +304,7 @@ const AddForm = () => {
 
       <Modal isVisible={showCategoryModal}>
         <View className="p-5  w-[90%] bg-slate-50 mx-auto rounded-3xl">
-          <Text className="mb-6 pt-3 pb-5 font-bold text-xl">
-            Select Category{" "}
-          </Text>
+          <Text className="mb-6 pt-3 pb-5 font-bold text-xl">Select Category</Text>
           <View>
             {categoryArray.map(
               ({ categoryLabel, categoryDescription }, index) => (
