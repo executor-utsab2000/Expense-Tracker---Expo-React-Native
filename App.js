@@ -110,8 +110,8 @@ const App = () => {
     <AppOpenShowModalContextProvider>
       <View className="bg-[#d0d4d9] flex-1">
         <NavigationContainer>
-          <Stack.Navigator initialRouteName={initialRoute}>
-          {/* <Stack.Navigator initialRouteName="home"> */}
+          {/* <Stack.Navigator initialRouteName={initialRoute}> */}
+          <Stack.Navigator initialRouteName="list">
             <Stack.Screen
               name="nameInsert"
               component={NameInsert}
