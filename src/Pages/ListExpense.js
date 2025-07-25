@@ -11,7 +11,6 @@ import createChartData from "../JS/chartData";
 
 const ListExpense = () => {
   const [todoList, setTodoList] = useState([]);
-  // const [tempStoreAllTodo, setTempStoreAllTodos] = useState([])
   const [sum, setSum] = useState(0);
   const [budget, setBudget] = useState(0);
   const [remainingAmount, setRemainingAmount] = useState(0);
@@ -72,17 +71,29 @@ const ListExpense = () => {
   }
 
 
-  const filterByCategory = (categoryName) => {
+  const filterByCategory = async (categoryName) => {
     setCategory(categoryName);
 
-    // if (categoryName == 'All') return
+    const storedTodos = await AsyncStorage.getItem("todoList"); //get the items
+    if (storedTodos != null) {
+      const parsedTodo = JSON.parse(storedTodos);
 
+      if (categoryName === 'All') {
+        const newSum = parsedTodo.reduce((result, currVal) => result + Number(currVal.amount), 0);
+        setSum(newSum)
+        setTodoList(parsedTodo)
+        setShowCategoryModal(false);
+      }
 
-    // setTempStoreAllTodos(todoList)
-    // const filteredTodo = todoList.filter((elm) => elm.categoryLabel == categoryName)
+      else {
+        const filteredTodo = parsedTodo.filter((elm) => elm.category == categoryName)
+        const newSum = filteredTodo.reduce((result, currVal) => result + Number(currVal.amount), 0);
+        setSum(newSum)
+        setTodoList(filteredTodo)
+        setShowCategoryModal(false)
+      }
 
-    // setTodoList(filteredTodo)
-    setShowCategoryModal(false);
+    }
   }
 
   return (
@@ -156,7 +167,7 @@ const ListExpense = () => {
           <View>
             <Pressable className="py-3 border-b-2 border-blue-500 flex flex-row justify-center" key={78} onPress={() => filterByCategory('All')}>
               <Text className="text-center font-bold">All </Text>
-              r            </Pressable>
+            </Pressable>
             {categoryArray.map(
               ({ categoryLabel, categoryDescription }, index) => (
                 <Pressable className="py-3 border-b-2 border-blue-500 flex flex-row justify-center" key={index} onPress={() => filterByCategory(categoryLabel)}>
@@ -175,7 +186,7 @@ const ListExpense = () => {
 
       <Modal isVisible={showChart}>
         <View className="p-5 w-[90%] bg-slate-50 mx-auto rounded-3xl">
-          <Text className="mb-6 pt-3 pb-5 font-bold text-xl">Split of Expenes</Text>
+          <Text className="mb-6 pt-3 pb-5 font-bold text-xl">Split of Expenes (in % out of 100)</Text>
           <View className="flex-row justify-center items-center">
             <PieChart
               data={chartDataArray}
